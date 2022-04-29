@@ -365,3 +365,7 @@ SELECT Size "Size (Ounces)",
 	COUNT(SKU) "Number of SKUs"
 FROM products.products
 GROUP BY Size;
+
+-- Clean up
+DROP TABLE products.categories;
+DROP TABLE products.products;
