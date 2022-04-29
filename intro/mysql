@@ -31,11 +31,11 @@ CREATE TABLE products.categories (
 
 -- add data
 INSERT INTO products.categories 
-	(CategoryID, CategoryDescription)
+    (CategoryID, CategoryDescription)
 VALUES
-	(1, 'Olive Oils'),
-	(2, 'Flavor Infused Oils'), 
-	(3, 'Bath and Beauty')
+    (1, 'Olive Oils'),
+    (2, 'Flavor Infused Oils'), 
+    (3, 'Bath and Beauty')
 ;
 
 -- check they have been added
@@ -260,7 +260,7 @@ ORDER BY Price;
 
 -- aliases, rename in the results
 SELECT products.ProductName AS "Product Name",
-	products.Size as "Size (ounces)",
+    products.Size as "Size (ounces)",
     products.SKU as "Product SKU",
     products.Price as "Price (US Dollars)",
     categories.ProductLine as "Product Line"
@@ -271,7 +271,7 @@ FROM products.products
 
 -- rename table to shorten query
 SELECT p.ProductName AS "Product Name",
-	p.Size as "Size (ounces)",
+    p.Size as "Size (ounces)",
     p.SKU as "Product SKU",
     p.Price as "Price (US Dollars)",
     c.ProductLine as "Product Line"
@@ -282,7 +282,7 @@ FROM products.products AS p
 
 -- the As keyword is optional so it is the same as
 SELECT p.ProductName "Product Name",
-	p.Size "Size (ounces)",
+    p.Size "Size (ounces)",
     p.SKU "Product SKU",
     p.Price "Price (US Dollars)",
     c.ProductLine "Product Line"
@@ -362,6 +362,6 @@ ORDER BY COUNT(products.SKU) DESC
 -- Question: How many different product SKU's are available in each size?
 -- Answer
 SELECT Size "Size (Ounces)",
-	COUNT(SKU) "Number of SKUs"
+    COUNT(SKU) "Number of SKUs"
 FROM products.products
 GROUP BY Size;
