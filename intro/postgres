@@ -1,0 +1,5 @@
+-- postgres server
+CREATE DATABASE mytestdb;
+SELECT * FROM pg_database;
+
+
