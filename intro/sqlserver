@@ -1,5 +1,5 @@
 
--- mysql server
+-- sql server
 CREATE DATABASE mytestdb;
 SELECT * FROM sys.databases;
 
