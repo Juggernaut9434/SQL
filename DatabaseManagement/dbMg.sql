@@ -495,6 +495,127 @@ FROM sales.order_lines
     INNER MERGE JOIN sales.customers ON orders.customer_id = customers.customer_id
 GROUP BY orders.customer_id, customers.company_name;
 
+---------------------------------------------------------------------------------------
+-- Transactions
+BEGIN TRANSACTION
 
+INSERT INTO inventory.categories 
+VALUES (4, 'Gift Baskets', 'Holiday Favorites');
+INSERT INTO inventory.categories 
+VALUES (5, 'Party Platters', 'Holiday Favorites');
+
+-- analyze the results and choose whether to commit or rollback
+-- usually done with backend code and not manual user
+COMMIT TRANSACTION
+-- ROLLBACK TRANSACTION
+
+---------------------------------------------------------------------------------------
+-- system tables
+-- SQL SERVER SPECIFIC
+SELECT * FROM sys.databases;
+
+-- duplicate tables
+-- SQL SERVER specific
+SELECT * INTO inventory.beauty_products
+FROM inventory.products
+WHERE category_id = 3;
+
+SELECT * FROM inventory.beauty_products;
+
+-- delete rows --------------
+-- normal way
+DELETE FROM inventory.beauty_products
+WHERE sku = "OGEC004";
+
+-- with truncate: delete all data in a table
+-- you could use DELETE FROM table_name, but its slower
+TRUNCATE TABLE inventory.beauty_products;
+
+SELECT * FROM inventory.beauty_products;
+
+-- remove table with DROP
+DROP TABLE inventory.beauty_products;
+
+-- when you try to drop a table with constraints
+DROP TABLE sales.orders;
+-- get an error because it has a foreign key in other tables
+
+--------------
+-- temporary tables
+SELECT * INTO #infused_oils_temp
+FROM inventory.products
+WHERE category_id = 2;
+
+SELECT * FROM #infused_oils_temp;
+
+DROP TABLE #infused_oils_temp;
+
+
+-------------------------------------------------------
+-- functions
+-- Create the function in SQL Server
+GO
+CREATE FUNCTION sales.fetch_id (@search_name VARCHAR(100))
+RETURNS CHAR(5)
+AS
+    BEGIN
+        DECLARE @id_value CHAR(5);
+        SET @id_value = (SELECT customer_id
+                FROM sales.customers
+                WHERE company_name = @search_name);
+        RETURN(@id_value);
+    END
+;
+GO
+
+-- Use the function to translate name to id value
+-- For SQL Server, use “sales.fetch_id”
+SELECT sales.fetch_id('Flavorville');
+SELECT sales.fetch_id('Blue Vine');
+
+SELECT * FROM sales.orders
+WHERE customer_id = (SELECT sales.fetch_id('Green Gardens'))
+;
+
+-- procedures (proc)
+-- Create a custom procedure in SQL Server
+
+-- Create the temporary table to hold values for this example
+CREATE TABLE #my_names (my_name varchar(50));
+GO
+
+-- Create a stored procedure to aid in inserting rows into the table
+CREATE PROCEDURE insert_name (@first_name varchar(50))
+AS
+INSERT INTO #my_names VALUES (@first_name);
+GO
+
+-- Execute the procedure and pass it a parameter value
+EXECUTE insert_name 'Timothy';
+
+-- Verify the results
+SELECT * FROM #my_names;
+
+-- Query a system catalog to view all procedures on the database
+SELECT * FROM sys.objects
+WHERE type = 'P';
+
+-- Clean up the database
+DROP TABLE #my_names;
+DROP PROCEDURE insert_name;
+
+-- challenge: add proc for addng new customers to db
+GO
+CREATE PROCEDURE add_customer (@customer_id varchar(5), @company_name varchar(100))
+AS
+INSERT INTO sales.customers (customer_id, company_name)
+VALUES (@customer_id, @company_name) 
+GO
+
+EXECUTE add_customer 'FG100', 'Lilith Industries';
+
+SELECT * FROM sales.customers WHERE customer_id = 'FG100';
+
+DROP PROCEDURE add_customer;
 
 -- end
