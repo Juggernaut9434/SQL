@@ -1,0 +1,61 @@
+########################
+### Install software ###
+
+https://www.docker.com/products/docker-desktop
+https://docs.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio
+
+
+
+
+##################################
+### Remove existing containers ###
+
+docker stop sqlserver2019
+docker rm sqlserver2019
+
+docker stop postgresql
+docker rm postgresql
+
+
+
+
+#############################################
+### Create two database server containers ###
+
+Windows PC:
+docker run --name sqlserver2019 -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Adam123456" -p 1401:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+docker run --name postgresql -p 5401:5432 -e POSTGRES_PASSWORD=Adam123456 -d postgres:latest
+
+MacOS & Linux:
+docker run --name sqlserver2019 -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Adam123456' -p 1401:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+docker run --name postgresql -p 5401:5432 -e POSTGRES_PASSWORD=Adam123456 -d postgres:latest
+
+
+
+
+###############################################
+### Connect to servers in Azure Data Studio ###
+
+1. In Extensions Sidebar, add the PostgreSQL extension
+2. In Connections Sidebar, click New Connection
+    a. Connection Type: Microsoft SQL Server
+    b. Server: localhost
+    c. Authentication Type: SQL Login
+    d. User Name: SA
+    e. Password: Adam123456
+    Advanced button, Port: 1401
+3. In Connections Sidebar, click New Connection
+    a. Connection Type: PostgreSQL
+    b. Server: localhost
+    c. Authentication Type: Password
+    d. User Name: postgres
+    e. Password: Adam123456
+    Advanced button, Port: 5401
+
+
+
+
+######################################
+### Create databases in containers ###
+
+CREATE DATABASE TwoTrees;

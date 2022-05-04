@@ -1,0 +1,78 @@
+#################################################
+### Setup SQL Server and ASP.NET Core servers ###
+
+
+
+##################################################
+### 1. Build Docker containers for the project ###
+### Look at the /aspnet/ files: Dockerfile, entrypoint, and dockercompose.yml
+### included in the ASP.NET folder for github
+
+cd path/to/Exercise Files/Chapter 3/aspnet/
+
+docker-compose build    ### Run once to compose the Docker images or after making changes to app.csproj
+docker-compose up       ### Run whenever you want to start the servers
+                        ### Leave terminal window open to maintain servers
+                        ### To shut down servers, press Ctrl+C
+
+Open web browser: http://localhost:8000
+
+
+
+#################################
+### 2. View Docker Containers ###
+
+In a separate terminal window:
+	docker ps           ### lists running containers
+    
+docker ps --format '{{ .Names }}\t{{ .Ports }}'
+                        ### aspnet_web_1 is the ASP.NET web server
+                        ### aspnet_db_1 is the SQL Server database
+
+
+
+##################################################
+### 3. Set up Two Trees database in SQL Server ###
+
+Using Azure Data Studio:
+    Create new connection to SQL Server database
+        host: localhost
+        port: 1450
+        user: sa
+        pass: Adam123456
+    New Query: Paste and run /Exercise Files/Chapter 3/TwoTrees.sql
+
+Using command line in new terminal window:
+    # Copy script to container
+        docker cp path/to/Exercise Files/Chapter 3/TwoTrees.sql aspnet_db_1:/   
+    # Log into the container
+        docker exec -it aspnet_db_1 bash    
+    # Execute script
+        /opt/mssql-tools/bin/sqlcmd -U sa -P Adam123456 -i /TwoTrees.sql    
+    # Exit out of the docker container
+        exit
+
+
+
+#########################################
+### 4. Test out the connected servers ###
+
+Open web browser: http://localhost:8000
+
+
+
+#############################
+### Shut down the servers ###
+
+Ctrl+C in running Terminal / PowerShell window
+
+
+
+#########################
+### Start the servers ###
+
+From aspnet folder: docker-compose up
+
+Open web browser: http://localhost:8000
+
+

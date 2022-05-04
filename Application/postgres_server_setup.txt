@@ -1,0 +1,98 @@
+########################################
+### Setup PostgreSQL and PHP servers ###
+
+
+#######################################################
+### 1. Create user-defined bridge network in Docker ###
+
+docker network create pgdb_network
+
+
+
+###########################################
+### 2. Create database server container ###
+
+docker run --name pg_db_server --network pgdb_network --publish 5430:5432 -e POSTGRES_PASSWORD=Adam123456 -d postgres:13.2
+
+
+
+######################################
+### 3. Create web server container ###
+
+docker run --name php_web_server --network pgdb_network --publish 8080:80 -d php:8.0.2-apache
+
+
+
+###################################
+### 4. Add PostgreSQL extension ###
+
+docker exec -it php_web_server bash
+
+apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pgsql pdo pdo_pgsql
+
+exit
+
+docker restart php_web_server
+
+
+
+#####################################
+### 5. Copy files into web server ###
+
+cd path/to/your/Exercise Files/Chapter 2/php_web_server/
+
+docker cp . php_web_server:/var/www/html/
+
+
+### Verify the files copied successfully
+
+docker exec -it php_web_server bash
+
+ls
+
+exit
+
+
+
+#########################################
+### 6. Test out the connected servers ###
+
+Open web browser: http://localhost:8080
+
+
+
+################################
+### Shut down the containers ###
+
+docker stop php_web_server
+
+docker stop pg_db_server
+
+
+
+############################
+### Start the containers ###
+
+docker start php_web_server
+
+docker start pg_db_server
+
+Open web browser: http://localhost:8080
+
+
+########################################
+### Remove the containers and images ###
+
+docker stop php_web_server
+
+docker stop pg_db_server
+
+docker rm php_web_server
+
+docker rm pg_db_server
+
+docker network rm pgdb_network
+
+docker rmi php:8.0.2-apache
+
+docker rmi postgres:13.2
