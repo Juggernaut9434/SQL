@@ -330,3 +330,109 @@ SELECT * FROM inventory.products;
 SELECT * FROM sales.customers;
 SELECT * FROM sales.orders;
 SELECT * FROM sales.order_lines;
+
+
+-------------------------------------
+-- SQL SERVER USER PERMISSIONS FOR
+-- SERVER SECURITY PRACTICE
+-------------------------------------
+
+-- must be a strong password
+-- grants access to server, but not db
+CREATE LOGIN Bradley WITH PASSWORD = 'Brad1234';
+
+-- grants access to database
+CREATE USER Bradley FOR LOGIN Bradley;
+
+------------------------------------------------
+-- ADD A NEW CONNECTION TO DB WITH bradley's 
+-- credentials
+------------------------------------------------
+
+-- Admin: to add and remove permissions to test
+GRANT SELECT ON SCHEMA :: sales TO Bradley;
+
+REVOKE SELECT ON SCHEMA :: sales FROM Bradley;
+
+DROP USER Bradley;
+
+-- DISCONNECT BRADLEY'S CONNECTION, THEN DO THIS
+DROP LOGIN Bradley;
+-- won't work b/c sql server is weird
+SELECT session_id
+FROM sys.dm_exec_sessions
+WHERE login_name = 'Bradley';
+
+-- kill each session
+-- KILL 52
+-- now you can drop login 
+
+---------------------
+-- Database Security
+
+-- See who granted access to whom
+-- SQL Server
+-- view user permissions
+
+CREATE USER Hiroshi WITHOUT LOGIN; -- creates database user without a corresponding server login
+
+-- Give Hiroshi some permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: inventory TO Hiroshi;
+GRANT SELECT ON SCHEMA :: sales TO Hiroshi;
+GRANT UPDATE ON OBJECT :: sales.orders TO Hiroshi;
+
+-- View a list of database user accounts
+SELECT * FROM sys.database_principals
+    WHERE type_desc = 'SQL_USER';
+    
+-- View permissions for a specific user
+SELECT * FROM sys.database_permissions
+    WHERE grantee_principal_id = DATABASE_PRINCIPAL_ID('Hiroshi');
+
+SELECT class_desc,
+    schema_name(major_id) AS schema_name,
+    object_name(major_id) AS object_name,
+    permission_name,
+    state_desc    
+    FROM sys.database_permissions
+    WHERE grantee_principal_id = DATABASE_PRINCIPAL_ID('Hiroshi');
+
+-- Remove Hiroshi's permissions and remove it from server
+REVOKE SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: sales FROM Hiroshi;
+REVOKE SELECT ON SCHEMA :: sales FROM Hiroshi;
+REVOKE UPDATE ON OBJECT :: sales.orders FROM Hiroshi;
+DROP USER Hiroshi;
+
+-------------------
+-- column permissions
+-- SQL Server
+-- Grant column-level permissions
+
+CREATE USER Yusef WITHOUT LOGIN;
+
+-- Grant column-level access permission in SQL Server
+GRANT SELECT ON OBJECT :: sales.customers(company) TO Yusef;
+
+-- Postgresql has a slightly different syntax:
+-- GRANT SELECT (company) ON sales.customers TO Yusef; 
+
+-- Impersonate another user account
+EXECUTE AS USER = 'Yusef';
+
+SELECT CURRENT_USER;
+
+-- Test Yusef's permissions
+SELECT * FROM sales.customers; -- perm errors
+
+SELECT company FROM sales.customers;
+
+SELECT company, address FROM sales.customers; -- perm errors
+
+-- Switch back to the administrator account
+REVERT;
+
+-- Remove Yusef's permissions and remove it from server
+REVOKE SELECT ON OBJECT :: sales.customers(company) FROM Yusef;
+DROP USER Yusef;
+
+DROP DATABASE two_trees_dbf4;
